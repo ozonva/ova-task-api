@@ -14,7 +14,7 @@ func buildMap(values []int) map[int]struct{} {
 }
 
 func Filter(source []int) []int {
-	var filtered =make([]int, 0);
+	var filtered = make([]int, 0)
 
 	for _, value := range source {
 		if _, contains := primeNumbers[value]; !contains {
