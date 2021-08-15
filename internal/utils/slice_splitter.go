@@ -26,19 +26,19 @@ func SplitSlice(source []string, batch int) [][]string {
 	return chunks
 }
 
-func SplitTasksSlice(entities []tasks.Task, butchSize int) [][]tasks.Task {
-	if butchSize <= 0 {
+func SplitTasksSlice(entities []tasks.Task, batchSize int) [][]tasks.Task {
+	if batchSize <= 0 {
 		panic("Batch must be greater than 0.")
 	}
-	chunksCount := int(math.Ceil(float64(len(entities)) / float64(butchSize)))
+	chunksCount := int(math.Ceil(float64(len(entities)) / float64(batchSize)))
 	if chunksCount == 0 {
 		return [][]tasks.Task{}
 	}
 
 	chunks := make([][]tasks.Task, 0, chunksCount)
-	for i := 0; i < len(entities); i += butchSize {
+	for i := 0; i < len(entities); i += batchSize {
 		from := i
-		to := from + butchSize
+		to := from + batchSize
 		if to > len(entities) {
 			to = len(entities)
 		}
