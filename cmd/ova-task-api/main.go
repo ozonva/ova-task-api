@@ -13,6 +13,6 @@ func main() {
 	utils.ConfigCyclicReading(configFilePath, configUpdatePeriodSeconds, configUpdateHandle)
 }
 
-func configUpdateHandle(configVersion string){
+func configUpdateHandle(configVersion string) {
 	fmt.Printf("Config version: %v\r\n", configVersion)
 }
