@@ -25,15 +25,19 @@ func ConfigCyclicReading(configFilePath string, configUpdatePeriodSeconds int, c
 }
 
 func readConfig(configFilePath string) configuration {
-	file, _ := os.Open(configFilePath)
+	file, err := os.Open(configFilePath)
+	if err != nil {
+		fmt.Println("open config error: ", err)
+		return configuration{}
+	}
 	defer func(file *os.File) {
 		_ = file.Close()
 	}(file)
 	decoder := json.NewDecoder(file)
 	configuration := configuration{}
-	err := decoder.Decode(&configuration)
+	err = decoder.Decode(&configuration)
 	if err != nil {
-		fmt.Println("config decode error:", err)
+		fmt.Println("config decode error: ", err)
 	}
 	return configuration
 }
