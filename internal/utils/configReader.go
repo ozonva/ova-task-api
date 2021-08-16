@@ -14,21 +14,25 @@ type configuration struct {
 func ConfigCyclicReading(configFilePath string, configUpdatePeriodSeconds int, configUpdateHandle func(key string)) {
 	var workingVersion string
 	for {
-		config := readConfig(configFilePath)
-		actualVersion := config.ConfigVersion
-		if actualVersion != workingVersion {
-			workingVersion = actualVersion
-			configUpdateHandle(actualVersion)
+		config, err := readConfig(configFilePath)
+		if err != nil {
+			fmt.Println("read config error: ", err)
+		} else {
+			actualVersion := config.ConfigVersion
+			if actualVersion != workingVersion {
+				workingVersion = actualVersion
+				configUpdateHandle(actualVersion)
+			}
 		}
 		time.Sleep(time.Duration(configUpdatePeriodSeconds) * time.Second)
 	}
 }
 
-func readConfig(configFilePath string) configuration {
+func readConfig(configFilePath string) (*configuration, error) {
 	file, err := os.Open(configFilePath)
 	if err != nil {
 		fmt.Println("open config error: ", err)
-		return configuration{}
+		return nil, err
 	}
 	defer func(file *os.File) {
 		_ = file.Close()
@@ -38,6 +42,7 @@ func readConfig(configFilePath string) configuration {
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		fmt.Println("config decode error: ", err)
+		return nil, err
 	}
-	return configuration
+	return &configuration, nil
 }
