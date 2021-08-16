@@ -35,7 +35,10 @@ func readConfig(configFilePath string) (*configuration, error) {
 		return nil, err
 	}
 	defer func(file *os.File) {
-		_ = file.Close()
+		err := file.Close()
+		if err != nil {
+			fmt.Println("config close error: ", err)
+		}
 	}(file)
 	decoder := json.NewDecoder(file)
 	configuration := configuration{}
