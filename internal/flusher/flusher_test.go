@@ -43,7 +43,7 @@ var _ = Describe("Flusher.Flush(chunkSize, repo)", func() {
 		Context("when chunkSize greater than zero", func() {
 			BeforeEach(func() {
 				mockRepo = mocks.NewMockRepo(ctrl)
-				mockRepo.EXPECT().AddEntities(gomock.Any()).DoAndReturn(func(entities []tasks.Task) error {
+				mockRepo.EXPECT().AddTasks(gomock.Any()).DoAndReturn(func(entities []tasks.Task) error {
 					db = append(db, entities...)
 					return nil
 				}).AnyTimes()
@@ -97,7 +97,7 @@ var _ = Describe("Flusher.Flush(chunkSize, repo)", func() {
 		Context("when repo cant add nothing", func() {
 			var entities = BuildFakeTasks(1, 2, 3, 4, 5)
 			BeforeEach(func() {
-				mockRepo.EXPECT().AddEntities(gomock.Any()).DoAndReturn(func(entities []tasks.Task) error {
+				mockRepo.EXPECT().AddTasks(gomock.Any()).DoAndReturn(func(entities []tasks.Task) error {
 					return errors.New("cant add entities")
 				}).AnyTimes()
 				chunkSize = 2
@@ -114,7 +114,7 @@ var _ = Describe("Flusher.Flush(chunkSize, repo)", func() {
 		Context("when repo cant add just second chunk", func() {
 			BeforeEach(func() {
 				var callCounter = 0
-				mockRepo.EXPECT().AddEntities(gomock.Any()).
+				mockRepo.EXPECT().AddTasks(gomock.Any()).
 					DoAndReturn(func(entities []tasks.Task) error {
 						callCounter++
 						if callCounter == 2 {

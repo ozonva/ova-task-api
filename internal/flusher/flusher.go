@@ -2,13 +2,13 @@ package flusher
 
 import (
 	"fmt"
-	"ozonva/ova-task-api/internal/pkg/entities/tasks"
+	taskspkg "ozonva/ova-task-api/internal/pkg/entities/tasks"
 	"ozonva/ova-task-api/internal/repo"
 	"ozonva/ova-task-api/internal/utils"
 )
 
 type Flusher interface {
-	Flush(entities []tasks.Task) []tasks.Task
+	Flush(entities []taskspkg.Task) []taskspkg.Task
 }
 
 type flusher struct {
@@ -32,10 +32,10 @@ func New(
 	}
 }
 
-func (flusher *flusher) Flush(entities []tasks.Task) (notFlushed []tasks.Task) {
-	notFlushed = make([]tasks.Task, 0, 0)
-	for _, chunk := range utils.SplitTasksSlice(entities, flusher.chunkSize) {
-		err := flusher.entityRepo.AddEntities(chunk)
+func (flusher *flusher) Flush(tasks []taskspkg.Task) (notFlushed []taskspkg.Task) {
+	notFlushed = make([]taskspkg.Task, 0)
+	for _, chunk := range utils.SplitTasksSlice(tasks, flusher.chunkSize) {
+		err := flusher.entityRepo.AddTasks(chunk)
 		if err != nil {
 			fmt.Println("chunk not flushed", err)
 			notFlushed = append(notFlushed, chunk...)

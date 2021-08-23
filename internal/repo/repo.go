@@ -5,7 +5,7 @@ import (
 )
 
 type Repo interface {
-	AddEntities(entities []tasks.Task) error
-	ListEntities(limit, offset uint64) ([]tasks.Task, error)
-	DescribeEntity(entityId uint64) (*tasks.Task, error)
+	AddTasks(entities []tasks.Task) error
+	ListTasks(limit, offset uint64) ([]tasks.Task, error)
+	DescribeTasks(entityId uint64) (*tasks.Task, error)
 }
