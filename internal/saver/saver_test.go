@@ -94,6 +94,7 @@ var _ = Describe("Saver", func() {
 				var (
 					saver   Saver
 					flushed []Task = nil
+					flushWaiter        = sync.WaitGroup{}
 				)
 				BeforeEach(func() {
 					savePeriod = 1 * time.Hour
@@ -102,6 +103,7 @@ var _ = Describe("Saver", func() {
 					flushed = make([]Task, 0, 5)
 					mockFlusher.EXPECT().Flush(gomock.Any()).DoAndReturn(func(entities []Task) []Task {
 						flushed = entities
+						flushWaiter.Done()
 						return entities[:0]
 					}).Times(1)
 				})
@@ -113,9 +115,11 @@ var _ = Describe("Saver", func() {
 						{UserId: 4, TaskId: 4, Description: "task4", DateCreated: time.Time{}},
 						{UserId: 5, TaskId: 5, Description: "task5", DateCreated: time.Time{}},
 					}
+					flushWaiter.Add(len(tasks))
 					for _, task := range tasks {
 						saver.Save(task)
 					}
+					utils.WaitTimeout(&flushWaiter, 1 * time.Second)
 					saver.Close()
 					Expect(len(flushed)).Should(BeEquivalentTo(5))
 					Expect(flushed).Should(BeEquivalentTo(tasks))
