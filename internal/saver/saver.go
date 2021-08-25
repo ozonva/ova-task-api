@@ -35,11 +35,11 @@ func NewSaver(
 	return saver
 }
 
-func (s saver) Save(task tasks.Task) {
+func (s *saver) Save(task tasks.Task) {
 	s.buffer <- task
 }
 
-func (s saver) Close() {
+func (s *saver) Close() {
 	close(s.buffer)
 	s.wait.Wait()
 }
