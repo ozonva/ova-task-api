@@ -1,6 +1,7 @@
 package saver
 
 import (
+	"fmt"
 	"ozonva/ova-task-api/internal/flusher"
 	"ozonva/ova-task-api/internal/pkg/entities/tasks"
 	"sync"
@@ -62,8 +63,11 @@ func (s *saver) init(buffer chan tasks.Task, flusher flusher.Flusher, savePeriod
 		for {
 			select {
 			case entity, ok := <-buffer:
-				if ok != true {
+				if !ok {
 					toFlush = flush(toFlush)
+					if len(toFlush) > 0 {
+						fmt.Printf("%v tasks were not saved\n", len(toFlush))
+					}
 					return
 				}
 				toFlush = append(toFlush, entity)
