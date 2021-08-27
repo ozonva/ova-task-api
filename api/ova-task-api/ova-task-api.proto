@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+
+package ova.task.api;
+
+option go_package = "ozonva/ova-task-api/pkg/ova-task-api;ova_task_api";
+
+message StringMessage {
+    string value = 1;
+}
+
+service OvaTaskAPI {
+    rpc Echo(StringMessage) returns (StringMessage) {
+        option (google.api.http) = {
+            post: "/v1/example/echo"
+            body: "*"
+        };
+    }
+}

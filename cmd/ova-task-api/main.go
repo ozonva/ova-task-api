@@ -2,45 +2,23 @@ package main
 
 import (
 	"fmt"
-	"sync"
-	"time"
+	//ova_task_api "ozonva/ova-task-api/pkg/api/ova-task-api"
 )
 
 const configFilePath = "configs/ova-task-api.config"
 const configUpdatePeriodSeconds = 1
 
 func main() {
-	timer := time.NewTicker(5 * time.Nanosecond)
-	var buffer = make(chan int, 10)
-
-	var wait = sync.WaitGroup{}
-	wait.Add(1)
-
-	go func() {
-		defer wait.Done()
-		time.Sleep(3 * time.Second)
-		for {
-			select {
-			case entity, ok := <-buffer:
-				fmt.Println(entity, ok)
-				if ok == false {
-					//return
-				}
-			case <-timer.C:
-				fmt.Println("Timeout")
-				break
-			}
-		}
-	}()
-
-	for i := 0; i >= 0; i++ {
-		buffer <- i
-		if i == 10 {
-			close(buffer)
-			break
-		}
-	}
-	wait.Wait()
+	//listen, err := net.Listen("tcp", ":8080")
+	//if err != nil {
+	//	log.Fatalf("failed to listen: %v", err)
+	//}
+	//server := grpc.NewServer()
+	//ova_task_api.RegisterOvaTaskApiServer(server, api.NewOvaTaskApi())
+	//
+	//if err := server.Serve(listen); err != nil {
+	//	fmt.Println("error", err)
+	//}
 }
 
 func configUpdateHandle(configVersion string) {
