@@ -7,6 +7,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -14,86 +15,122 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// YourServiceClient is the client API for YourService service.
+// OvaTaskApiClient is the client API for OvaTaskApi service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type YourServiceClient interface {
+type OvaTaskApiClient interface {
+	Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StringMessage, error)
 	Echo(ctx context.Context, in *StringMessage, opts ...grpc.CallOption) (*StringMessage, error)
 }
 
-type yourServiceClient struct {
+type ovaTaskApiClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewYourServiceClient(cc grpc.ClientConnInterface) YourServiceClient {
-	return &yourServiceClient{cc}
+func NewOvaTaskApiClient(cc grpc.ClientConnInterface) OvaTaskApiClient {
+	return &ovaTaskApiClient{cc}
 }
 
-func (c *yourServiceClient) Echo(ctx context.Context, in *StringMessage, opts ...grpc.CallOption) (*StringMessage, error) {
+func (c *ovaTaskApiClient) Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StringMessage, error) {
 	out := new(StringMessage)
-	err := c.cc.Invoke(ctx, "/ova.task.api.YourService/Echo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// YourServiceServer is the server API for YourService service.
-// All implementations must embed UnimplementedYourServiceServer
+func (c *ovaTaskApiClient) Echo(ctx context.Context, in *StringMessage, opts ...grpc.CallOption) (*StringMessage, error) {
+	out := new(StringMessage)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/Echo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OvaTaskApiServer is the server API for OvaTaskApi service.
+// All implementations must embed UnimplementedOvaTaskApiServer
 // for forward compatibility
-type YourServiceServer interface {
+type OvaTaskApiServer interface {
+	Ping(context.Context, *emptypb.Empty) (*StringMessage, error)
 	Echo(context.Context, *StringMessage) (*StringMessage, error)
-	mustEmbedUnimplementedYourServiceServer()
+	mustEmbedUnimplementedOvaTaskApiServer()
 }
 
-// UnimplementedYourServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedYourServiceServer struct {
+// UnimplementedOvaTaskApiServer must be embedded to have forward compatible implementations.
+type UnimplementedOvaTaskApiServer struct {
 }
 
-func (UnimplementedYourServiceServer) Echo(context.Context, *StringMessage) (*StringMessage, error) {
+func (UnimplementedOvaTaskApiServer) Ping(context.Context, *emptypb.Empty) (*StringMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedOvaTaskApiServer) Echo(context.Context, *StringMessage) (*StringMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Echo not implemented")
 }
-func (UnimplementedYourServiceServer) mustEmbedUnimplementedYourServiceServer() {}
+func (UnimplementedOvaTaskApiServer) mustEmbedUnimplementedOvaTaskApiServer() {}
 
-// UnsafeYourServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to YourServiceServer will
+// UnsafeOvaTaskApiServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OvaTaskApiServer will
 // result in compilation errors.
-type UnsafeYourServiceServer interface {
-	mustEmbedUnimplementedYourServiceServer()
+type UnsafeOvaTaskApiServer interface {
+	mustEmbedUnimplementedOvaTaskApiServer()
 }
 
-func RegisterYourServiceServer(s grpc.ServiceRegistrar, srv YourServiceServer) {
-	s.RegisterService(&YourService_ServiceDesc, srv)
+func RegisterOvaTaskApiServer(s grpc.ServiceRegistrar, srv OvaTaskApiServer) {
+	s.RegisterService(&OvaTaskApi_ServiceDesc, srv)
 }
 
-func _YourService_Echo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OvaTaskApi_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OvaTaskApiServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ova.task.api.OvaTaskApi/Ping",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OvaTaskApiServer).Ping(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OvaTaskApi_Echo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StringMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(YourServiceServer).Echo(ctx, in)
+		return srv.(OvaTaskApiServer).Echo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ova.task.api.YourService/Echo",
+		FullMethod: "/ova.task.api.OvaTaskApi/Echo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(YourServiceServer).Echo(ctx, req.(*StringMessage))
+		return srv.(OvaTaskApiServer).Echo(ctx, req.(*StringMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// YourService_ServiceDesc is the grpc.ServiceDesc for YourService service.
+// OvaTaskApi_ServiceDesc is the grpc.ServiceDesc for OvaTaskApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var YourService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ova.task.api.YourService",
-	HandlerType: (*YourServiceServer)(nil),
+var OvaTaskApi_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ova.task.api.OvaTaskApi",
+	HandlerType: (*OvaTaskApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "Ping",
+			Handler:    _OvaTaskApi_Ping_Handler,
+		},
+		{
 			MethodName: "Echo",
-			Handler:    _YourService_Echo_Handler,
+			Handler:    _OvaTaskApi_Echo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

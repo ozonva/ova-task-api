@@ -15,6 +15,10 @@ generate:
 			--grpc-gateway_opt=paths=source_relative \
             api/ova-task-api/ova-task-api.proto
 
+.PHONY: generate-win
+generate-win:
+	generate-proto.bat
+
 
 .PHONY: .install-go-deps
 .install-go-deps:
@@ -34,7 +38,7 @@ generate:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go
 
 .PHONY: generate-swagger
-swagger:
+generate-swagger:
 	rm -r -f swagger
 	mkdir -p swagger
 	protoc -I vendor.protogen --swagger_out=allow_merge=true,merge_file_name=api:swagger api/ova-task-api/ova-task-api.proto

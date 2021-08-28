@@ -13,7 +13,7 @@
   "paths": {
     "/v1/example/echo": {
       "post": {
-        "operationId": "YourService_Echo",
+        "operationId": "OvaTaskApi_Echo",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -39,7 +39,29 @@
           }
         ],
         "tags": [
-          "YourService"
+          "OvaTaskApi"
+        ]
+      }
+    },
+    "/v1/example/ping": {
+      "get": {
+        "operationId": "OvaTaskApi_Ping",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiStringMessage"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "tags": [
+          "OvaTaskApi"
         ]
       }
     }

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 package ova.task.api;
 
@@ -10,7 +11,13 @@ message StringMessage {
     string value = 1;
 }
 
-service OvaTaskAPI {
+service OvaTaskApi {
+    rpc Ping(google.protobuf.Empty) returns (StringMessage) {
+        option (google.api.http) = {
+            get: "/v1/example/ping"
+        };
+    }
+
     rpc Echo(StringMessage) returns (StringMessage) {
         option (google.api.http) = {
             post: "/v1/example/echo"
