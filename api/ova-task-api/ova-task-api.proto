@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package ova.task.api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "ozonva/ova-task-api/pkg/ova-task-api;ova_task_api";
+
+enum TaskState
+{
+    TASK_STATE_UNSPECIFIED = 0;
+    TASK_STATE_ACTIVE = 1;
+    TASK_STATE_RESOLVED = 2;
+}
+
+message CreateTaskV1Request {
+    uint64 user_id = 1;
+    string description = 2;
+}
+
+message TaskV1 {
+    uint64 user_id = 1;
+    uint64 task_id = 2;
+    string description = 3;
+    google.protobuf.Timestamp date_created = 4;
+    TaskState state = 5;
+}
+
+message CreateTaskV1Response {
+    TaskV1 task = 1;
+}
+
+message DescribeTaskV1Request {
+    uint64 task_id = 1;
+}
+
+message DescribeTaskV1Response {
+    TaskV1 task = 1;
+}
+
+message ListTasksV1Request {
+    TaskState task_state = 1;
+    uint64 limit = 2;
+    uint64 offset = 3;
+}
+
+message ListTasksV1Response {
+    repeated TaskV1 tasks = 1;
+}
+
+message RemoveTaskV1Request {
+    uint64 task_id = 1;
+}
+
+message RemoveTaskV1Response {
+    uint64 task_id = 1;
+}
+
+service OvaTaskApi {
+    rpc CreateTaskV1(CreateTaskV1Request) returns (CreateTaskV1Response) {
+        option (google.api.http) = {
+            post: "/v1/tasks/create"
+            body: "*"
+        };
+    }
+
+    rpc DescribeTaskV1(DescribeTaskV1Request) returns (DescribeTaskV1Response) {
+        option (google.api.http) = {
+            get: "/v1/tasks/{task_id}"
+        };
+    }
+
+    rpc ListTasksV1(ListTasksV1Request) returns (ListTasksV1Response) {
+        option (google.api.http) = {
+            post: "/v1/tasks/list"
+            body: "*"
+        };
+    }
+
+    rpc RemoveTasksV1(RemoveTaskV1Request) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/v1/tasks/remove"
+            body: "*"
+        };
+    }
+}

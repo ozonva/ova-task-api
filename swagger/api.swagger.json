@@ -1,0 +1,273 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/ova-task-api/ova-task-api.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/tasks/create": {
+      "post": {
+        "operationId": "OvaTaskApi_CreateTaskV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateTaskV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCreateTaskV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OvaTaskApi"
+        ]
+      }
+    },
+    "/v1/tasks/list": {
+      "post": {
+        "operationId": "OvaTaskApi_ListTasksV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListTasksV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiListTasksV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OvaTaskApi"
+        ]
+      }
+    },
+    "/v1/tasks/remove": {
+      "post": {
+        "operationId": "OvaTaskApi_RemoveTasksV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiRemoveTaskV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OvaTaskApi"
+        ]
+      }
+    },
+    "/v1/tasks/{task_id}": {
+      "get": {
+        "operationId": "OvaTaskApi_DescribeTaskV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDescribeTaskV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OvaTaskApi"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiCreateTaskV1Request": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "apiCreateTaskV1Response": {
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/apiTaskV1"
+        }
+      }
+    },
+    "apiDescribeTaskV1Response": {
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/apiTaskV1"
+        }
+      }
+    },
+    "apiListTasksV1Request": {
+      "type": "object",
+      "properties": {
+        "task_state": {
+          "$ref": "#/definitions/apiTaskState"
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiListTasksV1Response": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiTaskV1"
+          }
+        }
+      }
+    },
+    "apiRemoveTaskV1Request": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiTaskState": {
+      "type": "string",
+      "enum": [
+        "TASK_STATE_UNSPECIFIED",
+        "TASK_STATE_ACTIVE",
+        "TASK_STATE_RESOLVED"
+      ],
+      "default": "TASK_STATE_UNSPECIFIED"
+    },
+    "apiTaskV1": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "task_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "description": {
+          "type": "string"
+        },
+        "date_created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "$ref": "#/definitions/apiTaskState"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

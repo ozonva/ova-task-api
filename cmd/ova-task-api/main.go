@@ -1,46 +1,65 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"sync"
-	"time"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+	"log"
+	"net"
+	"net/http"
+	api "ozonva/ova-task-api/internal/app/ova-task-api"
+	ova_task_api "ozonva/ova-task-api/pkg/api/ova-task-api"
 )
 
 const configFilePath = "configs/ova-task-api.config"
 const configUpdatePeriodSeconds = 1
 
+const (
+	grpcPort           = ":82"
+	grpcServerEndpoint = "localhost:82"
+	httpPort           = ":8081"
+)
+
 func main() {
-	timer := time.NewTicker(5 * time.Nanosecond)
-	var buffer = make(chan int, 10)
+	go runJSON()
 
-	var wait = sync.WaitGroup{}
-	wait.Add(1)
-
-	go func() {
-		defer wait.Done()
-		time.Sleep(3 * time.Second)
-		for {
-			select {
-			case entity, ok := <-buffer:
-				fmt.Println(entity, ok)
-				if ok == false {
-					//return
-				}
-			case <-timer.C:
-				fmt.Println("Timeout")
-				break
-			}
-		}
-	}()
-
-	for i := 0; i >= 0; i++ {
-		buffer <- i
-		if i == 10 {
-			close(buffer)
-			break
-		}
+	if err := run(); err != nil {
+		log.Fatal(err)
 	}
-	wait.Wait()
+}
+func runJSON() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+
+	err := ova_task_api.RegisterOvaTaskApiHandlerFromEndpoint(ctx, mux, grpcServerEndpoint, opts)
+	if err != nil {
+		panic(err)
+	}
+
+	err = http.ListenAndServe(httpPort, mux)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func run() error {
+	listener, err := net.Listen("tcp", grpcPort)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	fmt.Println("Server is listening...")
+	server := grpc.NewServer()
+	ova_task_api.RegisterOvaTaskApiServer(server, api.NewOvaTaskApi())
+
+	if err := server.Serve(listener); err != nil {
+		fmt.Println("error", err)
+	}
+	return nil
 }
 
 func configUpdateHandle(configVersion string) {
