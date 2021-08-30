@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  ova-task-api:
+    container_name: ova-task-api
+    build: .
+    ports:
+      - "8081:8081"
+    restart: unless-stopped

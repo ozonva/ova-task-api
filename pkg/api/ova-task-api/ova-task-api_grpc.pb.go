@@ -19,8 +19,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OvaTaskApiClient interface {
-	Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StringMessage, error)
-	Echo(ctx context.Context, in *StringMessage, opts ...grpc.CallOption) (*StringMessage, error)
+	CreateTaskV1(ctx context.Context, in *CreateTaskV1Request, opts ...grpc.CallOption) (*CreateTaskV1Response, error)
+	DescribeTaskV1(ctx context.Context, in *DescribeTaskV1Request, opts ...grpc.CallOption) (*DescribeTaskV1Response, error)
+	ListTasksV1(ctx context.Context, in *ListTasksV1Request, opts ...grpc.CallOption) (*ListTasksV1Response, error)
+	RemoveTasksV1(ctx context.Context, in *RemoveTaskV1Request, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type ovaTaskApiClient struct {
@@ -31,18 +33,36 @@ func NewOvaTaskApiClient(cc grpc.ClientConnInterface) OvaTaskApiClient {
 	return &ovaTaskApiClient{cc}
 }
 
-func (c *ovaTaskApiClient) Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StringMessage, error) {
-	out := new(StringMessage)
-	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/Ping", in, out, opts...)
+func (c *ovaTaskApiClient) CreateTaskV1(ctx context.Context, in *CreateTaskV1Request, opts ...grpc.CallOption) (*CreateTaskV1Response, error) {
+	out := new(CreateTaskV1Response)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/CreateTaskV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *ovaTaskApiClient) Echo(ctx context.Context, in *StringMessage, opts ...grpc.CallOption) (*StringMessage, error) {
-	out := new(StringMessage)
-	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/Echo", in, out, opts...)
+func (c *ovaTaskApiClient) DescribeTaskV1(ctx context.Context, in *DescribeTaskV1Request, opts ...grpc.CallOption) (*DescribeTaskV1Response, error) {
+	out := new(DescribeTaskV1Response)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/DescribeTaskV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ovaTaskApiClient) ListTasksV1(ctx context.Context, in *ListTasksV1Request, opts ...grpc.CallOption) (*ListTasksV1Response, error) {
+	out := new(ListTasksV1Response)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/ListTasksV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ovaTaskApiClient) RemoveTasksV1(ctx context.Context, in *RemoveTaskV1Request, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/RemoveTasksV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +73,10 @@ func (c *ovaTaskApiClient) Echo(ctx context.Context, in *StringMessage, opts ...
 // All implementations must embed UnimplementedOvaTaskApiServer
 // for forward compatibility
 type OvaTaskApiServer interface {
-	Ping(context.Context, *emptypb.Empty) (*StringMessage, error)
-	Echo(context.Context, *StringMessage) (*StringMessage, error)
+	CreateTaskV1(context.Context, *CreateTaskV1Request) (*CreateTaskV1Response, error)
+	DescribeTaskV1(context.Context, *DescribeTaskV1Request) (*DescribeTaskV1Response, error)
+	ListTasksV1(context.Context, *ListTasksV1Request) (*ListTasksV1Response, error)
+	RemoveTasksV1(context.Context, *RemoveTaskV1Request) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOvaTaskApiServer()
 }
 
@@ -62,11 +84,17 @@ type OvaTaskApiServer interface {
 type UnimplementedOvaTaskApiServer struct {
 }
 
-func (UnimplementedOvaTaskApiServer) Ping(context.Context, *emptypb.Empty) (*StringMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+func (UnimplementedOvaTaskApiServer) CreateTaskV1(context.Context, *CreateTaskV1Request) (*CreateTaskV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTaskV1 not implemented")
 }
-func (UnimplementedOvaTaskApiServer) Echo(context.Context, *StringMessage) (*StringMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Echo not implemented")
+func (UnimplementedOvaTaskApiServer) DescribeTaskV1(context.Context, *DescribeTaskV1Request) (*DescribeTaskV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DescribeTaskV1 not implemented")
+}
+func (UnimplementedOvaTaskApiServer) ListTasksV1(context.Context, *ListTasksV1Request) (*ListTasksV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTasksV1 not implemented")
+}
+func (UnimplementedOvaTaskApiServer) RemoveTasksV1(context.Context, *RemoveTaskV1Request) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveTasksV1 not implemented")
 }
 func (UnimplementedOvaTaskApiServer) mustEmbedUnimplementedOvaTaskApiServer() {}
 
@@ -81,38 +109,74 @@ func RegisterOvaTaskApiServer(s grpc.ServiceRegistrar, srv OvaTaskApiServer) {
 	s.RegisterService(&OvaTaskApi_ServiceDesc, srv)
 }
 
-func _OvaTaskApi_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+func _OvaTaskApi_CreateTaskV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTaskV1Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OvaTaskApiServer).Ping(ctx, in)
+		return srv.(OvaTaskApiServer).CreateTaskV1(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ova.task.api.OvaTaskApi/Ping",
+		FullMethod: "/ova.task.api.OvaTaskApi/CreateTaskV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OvaTaskApiServer).Ping(ctx, req.(*emptypb.Empty))
+		return srv.(OvaTaskApiServer).CreateTaskV1(ctx, req.(*CreateTaskV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OvaTaskApi_Echo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StringMessage)
+func _OvaTaskApi_DescribeTaskV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DescribeTaskV1Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OvaTaskApiServer).Echo(ctx, in)
+		return srv.(OvaTaskApiServer).DescribeTaskV1(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ova.task.api.OvaTaskApi/Echo",
+		FullMethod: "/ova.task.api.OvaTaskApi/DescribeTaskV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OvaTaskApiServer).Echo(ctx, req.(*StringMessage))
+		return srv.(OvaTaskApiServer).DescribeTaskV1(ctx, req.(*DescribeTaskV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OvaTaskApi_ListTasksV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTasksV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OvaTaskApiServer).ListTasksV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ova.task.api.OvaTaskApi/ListTasksV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OvaTaskApiServer).ListTasksV1(ctx, req.(*ListTasksV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OvaTaskApi_RemoveTasksV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveTaskV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OvaTaskApiServer).RemoveTasksV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ova.task.api.OvaTaskApi/RemoveTasksV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OvaTaskApiServer).RemoveTasksV1(ctx, req.(*RemoveTaskV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -125,12 +189,20 @@ var OvaTaskApi_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OvaTaskApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ping",
-			Handler:    _OvaTaskApi_Ping_Handler,
+			MethodName: "CreateTaskV1",
+			Handler:    _OvaTaskApi_CreateTaskV1_Handler,
 		},
 		{
-			MethodName: "Echo",
-			Handler:    _OvaTaskApi_Echo_Handler,
+			MethodName: "DescribeTaskV1",
+			Handler:    _OvaTaskApi_DescribeTaskV1_Handler,
+		},
+		{
+			MethodName: "ListTasksV1",
+			Handler:    _OvaTaskApi_ListTasksV1_Handler,
+		},
+		{
+			MethodName: "RemoveTasksV1",
+			Handler:    _OvaTaskApi_RemoveTasksV1_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
