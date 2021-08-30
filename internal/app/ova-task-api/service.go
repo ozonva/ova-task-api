@@ -2,7 +2,10 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	desc "ozonva/ova-task-api/pkg/api/ova-task-api"
 )
@@ -16,21 +19,25 @@ func NewOvaTaskApi() desc.OvaTaskApiServer {
 }
 
 func (o OvaTaskAPI) CreateTaskV1(ctx context.Context, in *desc.CreateTaskV1Request) (*desc.CreateTaskV1Response, error) {
-	fmt.Println("CreateTaskV1", in)
-	return &desc.CreateTaskV1Response{}, nil
+	inJson, _ := json.Marshal(in)
+	log.Debug().RawJSON("in", inJson).Msg("CreateTaskV1")
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }
 
 func (o OvaTaskAPI) DescribeTaskV1(ctx context.Context, in *desc.DescribeTaskV1Request) (*desc.DescribeTaskV1Response, error) {
-	fmt.Println("DescribeTaskV1", in)
-	return &desc.DescribeTaskV1Response{}, nil
+	inJson, _ := json.Marshal(in)
+	log.Debug().RawJSON("in", inJson).Msg("DescribeTaskV1")
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }
 
 func (o OvaTaskAPI) ListTasksV1(ctx context.Context, in *desc.ListTasksV1Request) (*desc.ListTasksV1Response, error) {
-	fmt.Println("ListTasksV1", in)
-	return &desc.ListTasksV1Response{}, nil
+	inJson, _ := json.Marshal(in)
+	log.Debug().RawJSON("in", inJson).Msg("ListTasksV1")
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }
 
 func (o OvaTaskAPI) RemoveTasksV1(ctx context.Context, in *desc.RemoveTaskV1Request) (*emptypb.Empty, error) {
-	fmt.Println("RemoveTasksV1", in)
-	return &emptypb.Empty{}, nil
+	inJson, _ := json.Marshal(in)
+	log.Debug().RawJSON("in", inJson).Msg("RemoveTasksV1")
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

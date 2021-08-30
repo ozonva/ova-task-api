@@ -60,6 +60,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiListTasksV1Request"
+            }
+          }
+        ],
         "tags": [
           "OvaTaskApi"
         ]
@@ -155,6 +165,22 @@
       "properties": {
         "task": {
           "$ref": "#/definitions/apiTaskV1"
+        }
+      }
+    },
+    "apiListTasksV1Request": {
+      "type": "object",
+      "properties": {
+        "task_state": {
+          "$ref": "#/definitions/apiTaskState"
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },

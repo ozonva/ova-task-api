@@ -75,6 +75,7 @@ service OvaTaskApi {
     rpc ListTasksV1(ListTasksV1Request) returns (ListTasksV1Response) {
         option (google.api.http) = {
             post: "/v1/tasks/list"
+            body: "*"
         };
     }
 
