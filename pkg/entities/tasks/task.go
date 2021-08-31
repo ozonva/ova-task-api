@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"ozonva/ova-task-api/pkg/entities/tasks/task_states"
 	"time"
 )
 
@@ -10,6 +11,7 @@ type Task struct {
 	TaskId      uint64
 	Description string
 	DateCreated time.Time
+	State       task_states.TaskState
 }
 
 func New(userId uint64, taskId uint64, description string, dateCreated time.Time) *Task {

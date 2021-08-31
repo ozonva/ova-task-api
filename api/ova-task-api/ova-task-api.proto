@@ -11,8 +11,9 @@ option go_package = "ozonva/ova-task-api/pkg/ova-task-api;ova_task_api";
 enum TaskState
 {
     TASK_STATE_UNSPECIFIED = 0;
-    TASK_STATE_ACTIVE = 1;
-    TASK_STATE_RESOLVED = 2;
+    TASK_STATE_NEW = 1;
+    TASK_STATE_ACTIVE = 2;
+    TASK_STATE_RESOLVED = 3;
 }
 
 message CreateTaskV1Request {
@@ -29,7 +30,6 @@ message TaskV1 {
 }
 
 message CreateTaskV1Response {
-    TaskV1 task = 1;
 }
 
 message DescribeTaskV1Request {
