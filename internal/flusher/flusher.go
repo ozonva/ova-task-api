@@ -2,9 +2,9 @@ package flusher
 
 import (
 	"fmt"
-	taskspkg "ozonva/ova-task-api/internal/pkg/entities/tasks"
 	"ozonva/ova-task-api/internal/repo"
 	"ozonva/ova-task-api/internal/utils"
+	taskspkg "ozonva/ova-task-api/pkg/entities/tasks"
 )
 
 type Flusher interface {

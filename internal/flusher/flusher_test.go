@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"ozonva/ova-task-api/internal/mocks"
-	"ozonva/ova-task-api/internal/pkg/entities/tasks"
+	"ozonva/ova-task-api/pkg/entities/tasks"
 	"strconv"
 	"time"
 

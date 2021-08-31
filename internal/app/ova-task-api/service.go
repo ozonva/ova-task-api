@@ -7,15 +7,19 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	repopkg "ozonva/ova-task-api/internal/repo"
 	desc "ozonva/ova-task-api/pkg/api/ova-task-api"
 )
 
 type OvaTaskAPI struct {
 	desc.UnimplementedOvaTaskApiServer
+	repo repopkg.Repo
 }
 
 func NewOvaTaskApi() desc.OvaTaskApiServer {
-	return &OvaTaskAPI{}
+	return &OvaTaskAPI{
+		repo: repopkg.NewRepo(),
+	}
 }
 
 func (o OvaTaskAPI) CreateTaskV1(ctx context.Context, in *desc.CreateTaskV1Request) (*desc.CreateTaskV1Response, error) {

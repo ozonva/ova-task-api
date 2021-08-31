@@ -3,7 +3,7 @@ package saver
 import (
 	"fmt"
 	"ozonva/ova-task-api/internal/flusher"
-	"ozonva/ova-task-api/internal/pkg/entities/tasks"
+	"ozonva/ova-task-api/pkg/entities/tasks"
 	"sync"
 	"time"
 )

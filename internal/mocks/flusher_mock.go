@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	tasks "ozonva/ova-task-api/internal/pkg/entities/tasks"
+	"ozonva/ova-task-api/pkg/entities/tasks"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

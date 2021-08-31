@@ -2,7 +2,7 @@ package utils
 
 import (
 	"math"
-	"ozonva/ova-task-api/internal/pkg/entities/tasks"
+	"ozonva/ova-task-api/pkg/entities/tasks"
 )
 
 func SplitSlice(source []string, batch int) [][]string {
