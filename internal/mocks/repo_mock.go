@@ -49,19 +49,19 @@ func (mr *MockRepoMockRecorder) AddTasks(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTasks", reflect.TypeOf((*MockRepo)(nil).AddTasks), arg0, arg1)
 }
 
-// DescribeTasks mocks base method.
-func (m *MockRepo) DescribeTasks(arg0 context.Context, arg1 uint64) (*tasks.Task, error) {
+// DescribeTask mocks base method.
+func (m *MockRepo) DescribeTask(arg0 context.Context, arg1 uint64) (*tasks.Task, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeTasks", arg0, arg1)
+	ret := m.ctrl.Call(m, "DescribeTask", arg0, arg1)
 	ret0, _ := ret[0].(*tasks.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// DescribeTasks indicates an expected call of DescribeTasks.
-func (mr *MockRepoMockRecorder) DescribeTasks(arg0, arg1 interface{}) *gomock.Call {
+// DescribeTask indicates an expected call of DescribeTask.
+func (mr *MockRepoMockRecorder) DescribeTask(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTasks", reflect.TypeOf((*MockRepo)(nil).DescribeTasks), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTask", reflect.TypeOf((*MockRepo)(nil).DescribeTask), arg0, arg1)
 }
 
 // ListTasks mocks base method.

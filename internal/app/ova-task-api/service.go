@@ -59,7 +59,7 @@ func (o OvaTaskAPI) DescribeTaskV1(ctx context.Context, in *desc.DescribeTaskV1R
 	inJson, _ := json.Marshal(in)
 	log.Debug().RawJSON("in", inJson).Msg("DescribeTaskV1")
 
-	task, err := o.repo.DescribeTasks(ctx, in.GetTaskId())
+	task, err := o.repo.DescribeTask(ctx, in.GetTaskId())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.NotFound, "task not found")

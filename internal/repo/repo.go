@@ -12,7 +12,7 @@ import (
 type Repo interface {
 	AddTasks(ctx context.Context, tasks []Task) error
 	ListTasks(ctx context.Context, limit, offset uint64) ([]Task, error)
-	DescribeTasks(ctx context.Context, taskId uint64) (*Task, error)
+	DescribeTask(ctx context.Context, taskId uint64) (*Task, error)
 	RemoveTask(ctx context.Context, taskId uint64) error
 }
 
@@ -115,7 +115,7 @@ func (repo *repo) ListTasks(ctx context.Context, limit, offset uint64) ([]Task, 
 	return tasks, nil
 }
 
-func (repo *repo) DescribeTasks(ctx context.Context, taskId uint64) (*Task, error) {
+func (repo *repo) DescribeTask(ctx context.Context, taskId uint64) (*Task, error) {
 	query := queryBuilder().
 		Select("id", "userid", "description", "created_at").
 		From("tasks").
