@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	tasks "ozonva/ova-task-api/pkg/entities/tasks"
 	reflect "reflect"
 
@@ -35,59 +36,59 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 }
 
 // AddTasks mocks base method.
-func (m *MockRepo) AddTasks(arg0 []tasks.Task) error {
+func (m *MockRepo) AddTasks(arg0 context.Context, arg1 []tasks.Task) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddTasks", arg0)
+	ret := m.ctrl.Call(m, "AddTasks", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddTasks indicates an expected call of AddTasks.
-func (mr *MockRepoMockRecorder) AddTasks(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddTasks(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTasks", reflect.TypeOf((*MockRepo)(nil).AddTasks), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTasks", reflect.TypeOf((*MockRepo)(nil).AddTasks), arg0, arg1)
 }
 
 // DescribeTasks mocks base method.
-func (m *MockRepo) DescribeTasks(arg0 uint64) (*tasks.Task, error) {
+func (m *MockRepo) DescribeTasks(arg0 context.Context, arg1 uint64) (*tasks.Task, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeTasks", arg0)
+	ret := m.ctrl.Call(m, "DescribeTasks", arg0, arg1)
 	ret0, _ := ret[0].(*tasks.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DescribeTasks indicates an expected call of DescribeTasks.
-func (mr *MockRepoMockRecorder) DescribeTasks(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) DescribeTasks(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTasks", reflect.TypeOf((*MockRepo)(nil).DescribeTasks), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTasks", reflect.TypeOf((*MockRepo)(nil).DescribeTasks), arg0, arg1)
 }
 
 // ListTasks mocks base method.
-func (m *MockRepo) ListTasks(arg0, arg1 uint64) ([]tasks.Task, error) {
+func (m *MockRepo) ListTasks(arg0 context.Context, arg1, arg2 uint64) ([]tasks.Task, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListTasks", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListTasks", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]tasks.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListTasks indicates an expected call of ListTasks.
-func (mr *MockRepoMockRecorder) ListTasks(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) ListTasks(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockRepo)(nil).ListTasks), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockRepo)(nil).ListTasks), arg0, arg1, arg2)
 }
 
 // RemoveTask mocks base method.
-func (m *MockRepo) RemoveTask(arg0 uint64) error {
+func (m *MockRepo) RemoveTask(arg0 context.Context, arg1 uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveTask", arg0)
+	ret := m.ctrl.Call(m, "RemoveTask", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveTask indicates an expected call of RemoveTask.
-func (mr *MockRepoMockRecorder) RemoveTask(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) RemoveTask(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTask", reflect.TypeOf((*MockRepo)(nil).RemoveTask), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTask", reflect.TypeOf((*MockRepo)(nil).RemoveTask), arg0, arg1)
 }

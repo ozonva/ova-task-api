@@ -48,7 +48,7 @@ func (o OvaTaskAPI) CreateTaskV1(ctx context.Context, in *desc.CreateTaskV1Reque
 	log.Debug().RawJSON("in", inJson).Msg("CreateTaskV1")
 
 	task := New(in.GetUserId(), 0, in.Description, time.Now())
-	err := o.repo.AddTasks([]Task{*task})
+	err := o.repo.AddTasks(ctx, []Task{*task})
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (o OvaTaskAPI) DescribeTaskV1(ctx context.Context, in *desc.DescribeTaskV1R
 	inJson, _ := json.Marshal(in)
 	log.Debug().RawJSON("in", inJson).Msg("DescribeTaskV1")
 
-	task, err := o.repo.DescribeTasks(in.GetTaskId())
+	task, err := o.repo.DescribeTasks(ctx, in.GetTaskId())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.NotFound, "task not found")
@@ -76,7 +76,7 @@ func (o OvaTaskAPI) ListTasksV1(ctx context.Context, in *desc.ListTasksV1Request
 	inJson, _ := json.Marshal(in)
 	log.Debug().RawJSON("in", inJson).Msg("ListTasksV1")
 
-	tasks, err := o.repo.ListTasks(in.GetLimit(), in.GetOffset())
+	tasks, err := o.repo.ListTasks(ctx, in.GetLimit(), in.GetOffset())
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (o OvaTaskAPI) ListTasksV1(ctx context.Context, in *desc.ListTasksV1Request
 func (o OvaTaskAPI) RemoveTasksV1(ctx context.Context, in *desc.RemoveTaskV1Request) (*emptypb.Empty, error) {
 	inJson, _ := json.Marshal(in)
 	log.Debug().RawJSON("in", inJson).Msg("RemoveTasksV1")
-	err := o.repo.RemoveTask(in.TaskId)
+	err := o.repo.RemoveTask(ctx, in.TaskId)
 	if err != nil {
 		return nil, err
 	}

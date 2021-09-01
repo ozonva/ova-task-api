@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/rs/zerolog/log"
@@ -9,10 +10,10 @@ import (
 )
 
 type Repo interface {
-	AddTasks(tasks []Task) error
-	ListTasks(limit, offset uint64) ([]Task, error)
-	DescribeTasks(taskId uint64) (*Task, error)
-	RemoveTask(taskId uint64) error
+	AddTasks(ctx context.Context, tasks []Task) error
+	ListTasks(ctx context.Context, limit, offset uint64) ([]Task, error)
+	DescribeTasks(ctx context.Context, taskId uint64) (*Task, error)
+	RemoveTask(ctx context.Context, taskId uint64) error
 }
 
 // todo move to utils
@@ -38,14 +39,14 @@ func OpenDb(connectionString string) (*sql.DB, error) {
 	return sql.Open("pgx", connectionString)
 }
 
-func (repo *repo) RemoveTask(taskId uint64) error {
+func (repo *repo) RemoveTask(ctx context.Context, taskId uint64) error {
 	query := queryBuilder().Delete("tasks").Where(sq.Eq{"id": taskId})
 	err := logQuery(query)
 	if err != nil {
 		log.Error().Err(err).Send()
 		return err
 	}
-	result, err := query.RunWith(repo.db).Exec()
+	result, err := query.RunWith(repo.db).ExecContext(ctx)
 	if err != nil {
 		log.Error().Err(err).Send()
 		return err
@@ -54,7 +55,7 @@ func (repo *repo) RemoveTask(taskId uint64) error {
 	return nil
 }
 
-func (repo *repo) AddTasks(tasks []Task) error {
+func (repo *repo) AddTasks(ctx context.Context, tasks []Task) error {
 	query := queryBuilder().Insert("tasks").Columns("userid", "description", "created_at")
 	for _, task := range tasks {
 		query = query.Values(task.UserId, task.Description, task.DateCreated)
@@ -64,7 +65,7 @@ func (repo *repo) AddTasks(tasks []Task) error {
 		log.Error().Err(err).Send()
 		return err
 	}
-	result, err := query.RunWith(repo.db).Exec()
+	result, err := query.RunWith(repo.db).ExecContext(ctx)
 	if err != nil {
 		log.Error().Err(err).Send()
 		return err
@@ -73,7 +74,7 @@ func (repo *repo) AddTasks(tasks []Task) error {
 	return nil
 }
 
-func (repo *repo) ListTasks(limit, offset uint64) ([]Task, error) {
+func (repo *repo) ListTasks(ctx context.Context, limit, offset uint64) ([]Task, error) {
 	query := queryBuilder().
 		Select("id", "userid", "description", "created_at").
 		From("tasks").
@@ -86,7 +87,7 @@ func (repo *repo) ListTasks(limit, offset uint64) ([]Task, error) {
 		log.Error().Err(err).Send()
 		return nil, err
 	}
-	rows, err := query.RunWith(repo.db).Query()
+	rows, err := query.RunWith(repo.db).QueryContext(ctx)
 	if err != nil {
 		log.Error().Err(err).Send()
 		return nil, err
@@ -114,7 +115,7 @@ func (repo *repo) ListTasks(limit, offset uint64) ([]Task, error) {
 	return tasks, nil
 }
 
-func (repo *repo) DescribeTasks(taskId uint64) (*Task, error) {
+func (repo *repo) DescribeTasks(ctx context.Context, taskId uint64) (*Task, error) {
 	query := queryBuilder().
 		Select("id", "userid", "description", "created_at").
 		From("tasks").
@@ -125,7 +126,7 @@ func (repo *repo) DescribeTasks(taskId uint64) (*Task, error) {
 		log.Error().Err(err).Send()
 		return nil, err
 	}
-	rowScanner := query.RunWith(repo.db).QueryRow()
+	rowScanner := query.RunWith(repo.db).QueryRowContext(ctx)
 	task, err := scanTask(rowScanner)
 	if err != nil {
 		log.Error().Err(err).Send()
