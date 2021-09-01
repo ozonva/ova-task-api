@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"ozonva/ova-task-api/pkg/entities/tasks"
+	tasks "ozonva/ova-task-api/pkg/entities/tasks"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -76,4 +76,18 @@ func (m *MockRepo) ListTasks(arg0, arg1 uint64) ([]tasks.Task, error) {
 func (mr *MockRepoMockRecorder) ListTasks(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockRepo)(nil).ListTasks), arg0, arg1)
+}
+
+// RemoveTask mocks base method.
+func (m *MockRepo) RemoveTask(arg0 uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveTask", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveTask indicates an expected call of RemoveTask.
+func (mr *MockRepoMockRecorder) RemoveTask(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTask", reflect.TypeOf((*MockRepo)(nil).RemoveTask), arg0)
 }

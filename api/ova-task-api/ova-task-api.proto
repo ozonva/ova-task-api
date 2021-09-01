@@ -8,14 +8,6 @@ import "google/protobuf/empty.proto";
 
 option go_package = "ozonva/ova-task-api/pkg/ova-task-api;ova_task_api";
 
-enum TaskState
-{
-    TASK_STATE_UNSPECIFIED = 0;
-    TASK_STATE_NEW = 1;
-    TASK_STATE_ACTIVE = 2;
-    TASK_STATE_RESOLVED = 3;
-}
-
 message CreateTaskV1Request {
     uint64 user_id = 1;
     string description = 2;
@@ -26,7 +18,6 @@ message TaskV1 {
     uint64 task_id = 2;
     string description = 3;
     google.protobuf.Timestamp date_created = 4;
-    TaskState state = 5;
 }
 
 message CreateTaskV1Response {
@@ -41,9 +32,8 @@ message DescribeTaskV1Response {
 }
 
 message ListTasksV1Request {
-    TaskState task_state = 1;
-    uint64 limit = 2;
-    uint64 offset = 3;
+    uint64 limit = 1;
+    uint64 offset = 2;
 }
 
 message ListTasksV1Response {

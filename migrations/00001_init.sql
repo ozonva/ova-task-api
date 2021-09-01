@@ -1,11 +1,9 @@
 -- +goose Up
-CREATE TYPE task_status AS ENUM ('new', 'active', 'resolved');
-CREATE table tasks
+CREATE TABLE tasks
 (
     id          serial primary key,
-    title       text,
-    description text,
-    status      task_status,
-    created_at  timestamptz
+    userid      integer     not null,
+    description text        not null,
+    created_at  timestamptz not null
 );
 -- +goose Down

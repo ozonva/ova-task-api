@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
@@ -11,7 +12,6 @@ import (
 	repopkg "ozonva/ova-task-api/internal/repo"
 	desc "ozonva/ova-task-api/pkg/api/ova-task-api"
 	. "ozonva/ova-task-api/pkg/entities/tasks"
-	taskStates "ozonva/ova-task-api/pkg/entities/tasks/task_states"
 	"time"
 )
 
@@ -20,9 +20,9 @@ type OvaTaskAPI struct {
 	repo repopkg.Repo
 }
 
-func NewOvaTaskApi() desc.OvaTaskApiServer {
+func NewOvaTaskApi(repo repopkg.Repo) desc.OvaTaskApiServer {
 	return &OvaTaskAPI{
-		repo: repopkg.NewRepo(),
+		repo: repo,
 	}
 }
 
@@ -35,23 +35,11 @@ func mapTasksToModels(tasks []Task) []*desc.TaskV1 {
 }
 
 func mapTaskToModel(task *Task) *desc.TaskV1 {
-	getState := func(state taskStates.TaskState) desc.TaskState {
-		switch task.State {
-		case taskStates.New:
-			return desc.TaskState_TASK_STATE_NEW
-		case taskStates.Active:
-			return desc.TaskState_TASK_STATE_ACTIVE
-		case taskStates.Resolved:
-			return desc.TaskState_TASK_STATE_RESOLVED
-		}
-		return desc.TaskState_TASK_STATE_UNSPECIFIED
-	}
 	return &desc.TaskV1{
 		UserId:      task.UserId,
 		TaskId:      task.TaskId,
 		Description: task.Description,
 		DateCreated: timestamppb.New(task.DateCreated),
-		State:       getState(task.State),
 	}
 }
 
@@ -64,7 +52,7 @@ func (o OvaTaskAPI) CreateTaskV1(ctx context.Context, in *desc.CreateTaskV1Reque
 	if err != nil {
 		return nil, err
 	}
-	return &desc.CreateTaskV1Response{}, status.Error(codes.Unimplemented, "not implemented")
+	return &desc.CreateTaskV1Response{}, nil
 }
 
 func (o OvaTaskAPI) DescribeTaskV1(ctx context.Context, in *desc.DescribeTaskV1Request) (*desc.DescribeTaskV1Response, error) {
@@ -73,6 +61,9 @@ func (o OvaTaskAPI) DescribeTaskV1(ctx context.Context, in *desc.DescribeTaskV1R
 
 	task, err := o.repo.DescribeTasks(in.GetTaskId())
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Error(codes.NotFound, "task not found")
+		}
 		return nil, err
 	}
 	response := &desc.DescribeTaskV1Response{

@@ -1,7 +1,11 @@
 package repo
 
 import (
+	"database/sql"
+	"fmt"
+	sq "github.com/Masterminds/squirrel"
 	. "ozonva/ova-task-api/pkg/entities/tasks"
+	"time"
 )
 
 type Repo interface {
@@ -11,24 +15,146 @@ type Repo interface {
 	RemoveTask(taskId uint64) error
 }
 
-type repo struct{}
-
-func NewRepo() Repo {
-	return &repo{}
+// todo move to utils
+type sqlQuery interface {
+	ToSql() (string, []interface{}, error)
 }
 
-func (*repo) RemoveTask(taskId uint64) error {
-	panic("implement me")
+type repo struct {
+	db *sql.DB
 }
 
-func (*repo) AddTasks(tasks []Task) error {
-	panic("implement me")
+func NewRepo(sqlDb *sql.DB) Repo {
+	return &repo{
+		db: sqlDb,
+	}
 }
 
-func (*repo) ListTasks(limit, offset uint64) ([]Task, error) {
-	panic("implement me")
+func queryBuilder() sq.StatementBuilderType {
+	return sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 }
 
-func (*repo) DescribeTasks(entityId uint64) (*Task, error) {
-	panic("implement me")
+func OpenDb(connectionString string) (*sql.DB, error) {
+	return sql.Open("pgx", connectionString)
+}
+
+func (repo *repo) RemoveTask(taskId uint64) error {
+	query := queryBuilder().Delete("tasks").Where(sq.Eq{"id": taskId})
+	err := logQuery(query)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	result, err := query.RunWith(repo.db).Exec()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	logExecResult(result)
+	return nil
+}
+
+func (repo *repo) AddTasks(tasks []Task) error {
+	query := queryBuilder().Insert("tasks").Columns("userid", "description", "created_at")
+	for _, task := range tasks {
+		query = query.Values(task.UserId, task.Description, task.DateCreated)
+	}
+	err := logQuery(query)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	result, err := query.RunWith(repo.db).Exec()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	logExecResult(result)
+	return nil
+}
+
+func (repo *repo) ListTasks(limit, offset uint64) ([]Task, error) {
+	query := queryBuilder().
+		Select("id", "userid", "description", "created_at").
+		From("tasks").
+		OrderBy("created_at").
+		Limit(limit).
+		Offset(offset)
+
+	err := logQuery(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	rows, err := query.RunWith(repo.db).Query()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			fmt.Println("cant close rows")
+		}
+	}(rows)
+	tasks := make([]Task, 0, limit)
+	for rows.Next() {
+		task, err := scanTask(rows)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		tasks = append(tasks, *task)
+	}
+	if err := rows.Err(); err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (repo *repo) DescribeTasks(taskId uint64) (*Task, error) {
+	query := queryBuilder().
+		Select("id", "userid", "description", "created_at").
+		From("tasks").
+		Where(sq.Eq{"id": taskId})
+
+	err := logQuery(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	rowScanner := query.RunWith(repo.db).QueryRow()
+	task, err := scanTask(rowScanner)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return task, nil
+}
+
+func logExecResult(result sql.Result) {
+	fmt.Println(result)
+}
+
+func logQuery(query sqlQuery) error {
+	sqlQuery, args, err := query.ToSql()
+	if err != nil {
+		return err
+	}
+	fmt.Println(sqlQuery, args)
+	return nil
+}
+
+func scanTask(rows sq.RowScanner) (*Task, error) {
+	var taskId, userId uint64
+	var description string
+	var createAt time.Time
+	err := rows.Scan(&taskId, &userId, &description, &createAt)
+	if err != nil {
+		return nil, err
+	}
+	task := New(userId, taskId, description, createAt)
+	return task, nil
 }

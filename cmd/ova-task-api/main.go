@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	_ "github.com/jackc/pgx/stdlib"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 	"net/http"
 	"ozonva/ova-task-api/internal/app/ova-task-api"
+	repopkg "ozonva/ova-task-api/internal/repo"
 	"ozonva/ova-task-api/internal/utils"
 	apiServer "ozonva/ova-task-api/pkg/api/ova-task-api"
 	"strconv"
@@ -22,13 +25,33 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	go runJSON(config.Grpc.Port, config.Http.Port)
-	if err := run(config.Grpc.Port); err != nil {
+
+	dbConnectionString := fmt.Sprintf(
+		"port=%v user=%v password=%v dbname=%v sslmode=disable",
+		config.Db.Port,
+		config.Db.User,
+		config.Db.Password,
+		config.Db.DataBase,
+	)
+	db, err := repopkg.OpenDb(dbConnectionString)
+	if err != nil {
+		log.Fatalf("failed to load driver: %v", err)
+	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal("failed to close db")
+		}
+	}(db)
+
+	repo := repopkg.NewRepo(db)
+	go runHttpGateway(config.Grpc.Port, config.Http.Port)
+	if err := runGrpc(config.Grpc.Port, repo); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func runJSON(grpcPort int, httpPort int) {
+func runHttpGateway(grpcPort int, httpPort int) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -48,14 +71,14 @@ func runJSON(grpcPort int, httpPort int) {
 	}
 }
 
-func run(grpcPort int) error {
+func runGrpc(grpcPort int, repo repopkg.Repo) error {
 	listener, err := net.Listen("tcp", ":"+strconv.Itoa(grpcPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	fmt.Println("Server is listening...")
 	server := grpc.NewServer()
-	apiServer.RegisterOvaTaskApiServer(server, api.NewOvaTaskApi())
+	apiServer.RegisterOvaTaskApiServer(server, api.NewOvaTaskApi(repo))
 
 	if err := server.Serve(listener); err != nil {
 		fmt.Println("error", err)

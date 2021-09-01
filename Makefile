@@ -19,6 +19,9 @@ generate:
 generate-win:
 	generate-proto.bat
 
+.PHONY: updb
+updb:
+	$ goose -dir "migrations" postgres "port=5432 user=admin password=postgres dbname=ova_task_api sslmode=disable" up
 
 .PHONY: .install-go-deps
 .install-go-deps:
