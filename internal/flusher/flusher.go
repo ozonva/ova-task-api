@@ -1,7 +1,7 @@
 package flusher
 
 import (
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"ozonva/ova-task-api/internal/repo"
 	"ozonva/ova-task-api/internal/utils"
 	taskspkg "ozonva/ova-task-api/pkg/entities/tasks"
@@ -37,7 +37,7 @@ func (flusher *flusher) Flush(tasks []taskspkg.Task) (notFlushed []taskspkg.Task
 	for _, chunk := range utils.SplitTasksSlice(tasks, flusher.chunkSize) {
 		err := flusher.entityRepo.AddTasks(chunk)
 		if err != nil {
-			fmt.Println("chunk not flushed", err)
+			log.Warn().Msgf("chunk not flushed %v", err)
 			notFlushed = append(notFlushed, chunk...)
 		}
 	}

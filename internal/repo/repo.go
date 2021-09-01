@@ -2,8 +2,8 @@ package repo
 
 import (
 	"database/sql"
-	"fmt"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/rs/zerolog/log"
 	. "ozonva/ova-task-api/pkg/entities/tasks"
 	"time"
 )
@@ -42,12 +42,12 @@ func (repo *repo) RemoveTask(taskId uint64) error {
 	query := queryBuilder().Delete("tasks").Where(sq.Eq{"id": taskId})
 	err := logQuery(query)
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return err
 	}
 	result, err := query.RunWith(repo.db).Exec()
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return err
 	}
 	logExecResult(result)
@@ -61,12 +61,12 @@ func (repo *repo) AddTasks(tasks []Task) error {
 	}
 	err := logQuery(query)
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return err
 	}
 	result, err := query.RunWith(repo.db).Exec()
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return err
 	}
 	logExecResult(result)
@@ -83,31 +83,31 @@ func (repo *repo) ListTasks(limit, offset uint64) ([]Task, error) {
 
 	err := logQuery(query)
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return nil, err
 	}
 	rows, err := query.RunWith(repo.db).Query()
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			fmt.Println("cant close rows")
+			log.Error().Msg("cant close rows")
 		}
 	}(rows)
 	tasks := make([]Task, 0, limit)
 	for rows.Next() {
 		task, err := scanTask(rows)
 		if err != nil {
-			fmt.Println(err)
+			log.Error().Err(err).Send()
 			continue
 		}
 		tasks = append(tasks, *task)
 	}
 	if err := rows.Err(); err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return nil, err
 	}
 
@@ -122,20 +122,20 @@ func (repo *repo) DescribeTasks(taskId uint64) (*Task, error) {
 
 	err := logQuery(query)
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return nil, err
 	}
 	rowScanner := query.RunWith(repo.db).QueryRow()
 	task, err := scanTask(rowScanner)
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return nil, err
 	}
 	return task, nil
 }
 
 func logExecResult(result sql.Result) {
-	fmt.Println(result)
+	log.Debug().Msgf("%v", result)
 }
 
 func logQuery(query sqlQuery) error {
@@ -143,7 +143,7 @@ func logQuery(query sqlQuery) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(sqlQuery, args)
+	log.Debug().Msgf("%v %v", sqlQuery, args)
 	return nil
 }
 

@@ -1,7 +1,7 @@
 package saver
 
 import (
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"ozonva/ova-task-api/internal/flusher"
 	"ozonva/ova-task-api/pkg/entities/tasks"
 	"sync"
@@ -66,7 +66,7 @@ func (s *saver) init(buffer chan tasks.Task, flusher flusher.Flusher, savePeriod
 				if !ok {
 					toFlush = flush(toFlush)
 					if len(toFlush) > 0 {
-						fmt.Printf("%v tasks were not saved\n", len(toFlush))
+						log.Error().Msgf("%v tasks were not saved\n", len(toFlush))
 					}
 					return
 				}

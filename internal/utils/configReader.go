@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"os"
 	"time"
 )
@@ -29,7 +29,7 @@ func ConfigCyclicReading(configFilePath string, configUpdatePeriodSeconds int, c
 	for {
 		config, err := ReadConfig(configFilePath)
 		if err != nil {
-			fmt.Println("read config error: ", err)
+			log.Error().Err(err).Msg("read config error")
 		} else {
 			actualVersion := config.ConfigVersion
 			if actualVersion != workingVersion {
@@ -44,20 +44,20 @@ func ConfigCyclicReading(configFilePath string, configUpdatePeriodSeconds int, c
 func ReadConfig(configFilePath string) (*Configuration, error) {
 	file, err := os.Open(configFilePath)
 	if err != nil {
-		fmt.Println("open config error: ", err)
+		log.Error().Err(err).Msg("open config error")
 		return nil, err
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			fmt.Println("config close error: ", err)
+			log.Error().Err(err).Msg("config close error")
 		}
 	}(file)
 	decoder := json.NewDecoder(file)
 	configuration := Configuration{}
 	err = decoder.Decode(&configuration)
 	if err != nil {
-		fmt.Println("config decode error: ", err)
+		log.Error().Err(err).Msg("config decode error")
 		return nil, err
 	}
 	return &configuration, nil
