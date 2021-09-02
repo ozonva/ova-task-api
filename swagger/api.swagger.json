@@ -75,6 +75,38 @@
         ]
       }
     },
+    "/v1/tasks/multicreate": {
+      "post": {
+        "operationId": "OvaTaskApi_MultiCreateTaskV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMultiCreateTaskV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMultiCreateTaskV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OvaTaskApi"
+        ]
+      }
+    },
     "/v1/tasks/remove": {
       "post": {
         "operationId": "OvaTaskApi_RemoveTasksV1",
@@ -99,6 +131,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/apiRemoveTaskV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "OvaTaskApi"
+        ]
+      }
+    },
+    "/v1/tasks/update": {
+      "post": {
+        "operationId": "OvaTaskApi_UpdateTaskV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUpdateTaskV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateTaskV1Request"
             }
           }
         ],
@@ -143,12 +207,8 @@
     "apiCreateTaskV1Request": {
       "type": "object",
       "properties": {
-        "user_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "description": {
-          "type": "string"
+        "task_template": {
+          "$ref": "#/definitions/apiTaskTemplateV1"
         }
       }
     },
@@ -187,12 +247,38 @@
         }
       }
     },
+    "apiMultiCreateTaskV1Request": {
+      "type": "object",
+      "properties": {
+        "task_template": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiTaskTemplateV1"
+          }
+        }
+      }
+    },
+    "apiMultiCreateTaskV1Response": {
+      "type": "object"
+    },
     "apiRemoveTaskV1Request": {
       "type": "object",
       "properties": {
         "task_id": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "apiTaskTemplateV1": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "description": {
+          "type": "string"
         }
       }
     },
@@ -215,6 +301,25 @@
           "format": "date-time"
         }
       }
+    },
+    "apiUpdateTaskV1Request": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "task_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "apiUpdateTaskV1Response": {
+      "type": "object"
     },
     "protobufAny": {
       "type": "object",

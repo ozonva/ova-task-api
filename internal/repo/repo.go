@@ -14,6 +14,7 @@ type Repo interface {
 	ListTasks(ctx context.Context, limit, offset uint64) ([]Task, error)
 	DescribeTask(ctx context.Context, taskId uint64) (*Task, error)
 	RemoveTask(ctx context.Context, taskId uint64) error
+	UpdateTask(ctx context.Context, task Task) error
 }
 
 // todo move to utils
@@ -133,6 +134,27 @@ func (repo *repo) DescribeTask(ctx context.Context, taskId uint64) (*Task, error
 		return nil, err
 	}
 	return task, nil
+}
+
+func (repo *repo) UpdateTask(ctx context.Context, task Task) error {
+	query := queryBuilder().
+		Update("tasks").
+		Set("userid", task.UserId).
+		Set("description", task.Description).
+		Where(sq.Eq{"id": task.TaskId})
+
+	err := logQuery(query)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+	result, err := query.RunWith(repo.db).ExecContext(ctx)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+	logExecResult(result)
+	return nil
 }
 
 func logExecResult(result sql.Result) {

@@ -47,7 +47,7 @@ func (o OvaTaskAPI) CreateTaskV1(ctx context.Context, in *desc.CreateTaskV1Reque
 	inJson, _ := json.Marshal(in)
 	log.Debug().RawJSON("in", inJson).Msg("CreateTaskV1")
 
-	task := New(in.GetUserId(), 0, in.Description, time.Now())
+	task := New(in.GetTaskTemplate().GetUserId(), 0, in.GetTaskTemplate().GetDescription(), time.Now())
 	err := o.repo.AddTasks(ctx, []Task{*task})
 	if err != nil {
 		return nil, err
@@ -96,4 +96,33 @@ func (o OvaTaskAPI) RemoveTasksV1(ctx context.Context, in *desc.RemoveTaskV1Requ
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (o OvaTaskAPI) MultiCreateTaskV1(ctx context.Context, in *desc.MultiCreateTaskV1Request) (*desc.MultiCreateTaskV1Response, error) {
+	inJson, _ := json.Marshal(in)
+	log.Debug().RawJSON("in", inJson).Msg("CreateTaskV1")
+
+	taskTemplates := in.GetTaskTemplate()
+	tasksToAdd := make([]Task, 0, len(taskTemplates))
+	for _, inTask := range taskTemplates {
+		task := New(inTask.GetUserId(), 0, inTask.GetDescription(), time.Now())
+		tasksToAdd = append(tasksToAdd, *task)
+	}
+	err := o.repo.AddTasks(ctx, tasksToAdd)
+	if err != nil {
+		return nil, err
+	}
+	return &desc.MultiCreateTaskV1Response{}, nil
+}
+
+func (o OvaTaskAPI) UpdateTaskV1(ctx context.Context, in *desc.UpdateTaskV1Request) (*desc.UpdateTaskV1Response, error) {
+	inJson, _ := json.Marshal(in)
+	log.Debug().RawJSON("in", inJson).Msg("CreateTaskV1")
+
+	task := New(in.GetUserId(), in.GetTaskId(), in.GetDescription(), time.Time{})
+	err := o.repo.UpdateTask(ctx, *task)
+	if err != nil {
+		return nil, err
+	}
+	return &desc.UpdateTaskV1Response{}, nil
 }
