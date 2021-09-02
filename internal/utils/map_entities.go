@@ -2,7 +2,7 @@ package utils
 
 import (
 	"errors"
-	"ozonva/ova-task-api/internal/pkg/entities/tasks"
+	"ozonva/ova-task-api/pkg/entities/tasks"
 )
 
 var ErrDuplicateKey = errors.New("an item with the same key has already been added")

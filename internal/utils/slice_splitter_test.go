@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/stretchr/testify/assert"
-	"ozonva/ova-task-api/internal/pkg/entities/tasks"
+	"ozonva/ova-task-api/pkg/entities/tasks"
 	"reflect"
 	"testing"
 )

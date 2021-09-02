@@ -2,21 +2,34 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"os"
 	"time"
 )
 
-type configuration struct {
+type Configuration struct {
 	ConfigVersion string `json:"configVersion"`
+	Grpc          struct {
+		Port int `json:"port"`
+	} `json:"grpc"`
+	Http struct {
+		Port int `json:"port"`
+	} `json:"http"`
+	Db struct {
+		Host     string `json:"host"`
+		Port     int    `json:"port"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+		DataBase string `json:"dataBase"`
+	} `json:"db"`
 }
 
 func ConfigCyclicReading(configFilePath string, configUpdatePeriodSeconds int, configUpdateHandle func(key string)) {
 	var workingVersion string
 	for {
-		config, err := readConfig(configFilePath)
+		config, err := ReadConfig(configFilePath)
 		if err != nil {
-			fmt.Println("read config error: ", err)
+			log.Error().Err(err).Msg("read config error")
 		} else {
 			actualVersion := config.ConfigVersion
 			if actualVersion != workingVersion {
@@ -28,23 +41,23 @@ func ConfigCyclicReading(configFilePath string, configUpdatePeriodSeconds int, c
 	}
 }
 
-func readConfig(configFilePath string) (*configuration, error) {
+func ReadConfig(configFilePath string) (*Configuration, error) {
 	file, err := os.Open(configFilePath)
 	if err != nil {
-		fmt.Println("open config error: ", err)
+		log.Error().Err(err).Msg("open config error")
 		return nil, err
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			fmt.Println("config close error: ", err)
+			log.Error().Err(err).Msg("config close error")
 		}
 	}(file)
 	decoder := json.NewDecoder(file)
-	configuration := configuration{}
+	configuration := Configuration{}
 	err = decoder.Decode(&configuration)
 	if err != nil {
-		fmt.Println("config decode error: ", err)
+		log.Error().Err(err).Msg("config decode error")
 		return nil, err
 	}
 	return &configuration, nil

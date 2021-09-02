@@ -153,12 +153,7 @@
       }
     },
     "apiCreateTaskV1Response": {
-      "type": "object",
-      "properties": {
-        "task": {
-          "$ref": "#/definitions/apiTaskV1"
-        }
-      }
+      "type": "object"
     },
     "apiDescribeTaskV1Response": {
       "type": "object",
@@ -171,9 +166,6 @@
     "apiListTasksV1Request": {
       "type": "object",
       "properties": {
-        "task_state": {
-          "$ref": "#/definitions/apiTaskState"
-        },
         "limit": {
           "type": "string",
           "format": "uint64"
@@ -204,15 +196,6 @@
         }
       }
     },
-    "apiTaskState": {
-      "type": "string",
-      "enum": [
-        "TASK_STATE_UNSPECIFIED",
-        "TASK_STATE_ACTIVE",
-        "TASK_STATE_RESOLVED"
-      ],
-      "default": "TASK_STATE_UNSPECIFIED"
-    },
     "apiTaskV1": {
       "type": "object",
       "properties": {
@@ -230,9 +213,6 @@
         "date_created": {
           "type": "string",
           "format": "date-time"
-        },
-        "state": {
-          "$ref": "#/definitions/apiTaskState"
         }
       }
     },

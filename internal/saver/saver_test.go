@@ -5,9 +5,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"ozonva/ova-task-api/internal/mocks"
-	. "ozonva/ova-task-api/internal/pkg/entities/tasks"
 	. "ozonva/ova-task-api/internal/saver"
 	"ozonva/ova-task-api/internal/utils"
+	. "ozonva/ova-task-api/pkg/entities/tasks"
 	"sync"
 	"time"
 )
@@ -92,8 +92,8 @@ var _ = Describe("Saver", func() {
 			})
 			Context("when tasks flushed on saver closing", func() {
 				var (
-					saver   Saver
-					flushed []Task = nil
+					saver       Saver
+					flushed     []Task = nil
 					flushWaiter        = sync.WaitGroup{}
 				)
 				BeforeEach(func() {
@@ -119,7 +119,7 @@ var _ = Describe("Saver", func() {
 					for _, task := range tasks {
 						saver.Save(task)
 					}
-					utils.WaitTimeout(&flushWaiter, 1 * time.Second)
+					utils.WaitTimeout(&flushWaiter, 1*time.Second)
 					saver.Close()
 					Expect(len(flushed)).Should(BeEquivalentTo(5))
 					Expect(flushed).Should(BeEquivalentTo(tasks))
