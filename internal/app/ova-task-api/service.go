@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	repopkg "ozonva/ova-task-api/internal/repo"
+	"ozonva/ova-task-api/internal/utils"
 	desc "ozonva/ova-task-api/pkg/api/ova-task-api"
 	. "ozonva/ova-task-api/pkg/entities/tasks"
 	"time"
@@ -17,12 +18,15 @@ import (
 
 type OvaTaskAPI struct {
 	desc.UnimplementedOvaTaskApiServer
-	repo repopkg.Repo
+	repo      repopkg.Repo
+	batchSize int
 }
 
 func NewOvaTaskApi(repo repopkg.Repo) desc.OvaTaskApiServer {
 	return &OvaTaskAPI{
 		repo: repo,
+		// todo pass as argument
+		batchSize: 2,
 	}
 }
 
@@ -108,9 +112,12 @@ func (o OvaTaskAPI) MultiCreateTaskV1(ctx context.Context, in *desc.MultiCreateT
 		task := New(inTask.GetUserId(), 0, inTask.GetDescription(), time.Now())
 		tasksToAdd = append(tasksToAdd, *task)
 	}
-	err := o.repo.AddTasks(ctx, tasksToAdd)
-	if err != nil {
-		return nil, err
+	for _, tasksSlice := range utils.SplitTasksSlice(tasksToAdd, o.batchSize) {
+		err := o.repo.AddTasks(ctx, tasksSlice)
+		if err != nil {
+			log.Error().Err(err).Send()
+			return nil, err
+		}
 	}
 	return &desc.MultiCreateTaskV1Response{}, nil
 }
