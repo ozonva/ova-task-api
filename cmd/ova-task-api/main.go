@@ -13,6 +13,7 @@ import (
 	"ozonva/ova-task-api/internal/app/ova-task-api"
 	"ozonva/ova-task-api/internal/kafka"
 	repopkg "ozonva/ova-task-api/internal/repo"
+	"ozonva/ova-task-api/internal/tracer"
 	"ozonva/ova-task-api/internal/utils"
 	apiServer "ozonva/ova-task-api/pkg/api/ova-task-api"
 	"strconv"
@@ -26,6 +27,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	tracerCloser := tracer.InitTracer("ova-task-api")
+	defer tracerCloser.Close()
 
 	dbConnectionString := fmt.Sprintf(
 		"port=%v user=%v password=%v dbname=%v sslmode=disable",

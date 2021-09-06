@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -103,6 +104,10 @@ func (o OvaTaskAPI) RemoveTasksV1(ctx context.Context, in *desc.RemoveTaskV1Requ
 }
 
 func (o OvaTaskAPI) MultiCreateTaskV1(ctx context.Context, in *desc.MultiCreateTaskV1Request) (*desc.MultiCreateTaskV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "MultiCreateTaskV1")
+	span.SetTag("tasks", len(in.TaskTemplate))
+	defer span.Finish()
+
 	inJson, _ := json.Marshal(in)
 	log.Debug().RawJSON("in", inJson).Msg("CreateTaskV1")
 
@@ -112,12 +117,16 @@ func (o OvaTaskAPI) MultiCreateTaskV1(ctx context.Context, in *desc.MultiCreateT
 		task := New(inTask.GetUserId(), 0, inTask.GetDescription(), time.Now())
 		tasksToAdd = append(tasksToAdd, *task)
 	}
+
 	for _, tasksSlice := range utils.SplitTasksSlice(tasksToAdd, o.batchSize) {
+		childSpan, ctx := opentracing.StartSpanFromContext(ctx, "add chunk of tasks")
+		childSpan.SetTag("tasks_chunk", len(tasksSlice))
 		err := o.repo.AddTasks(ctx, tasksSlice)
 		if err != nil {
 			log.Error().Err(err).Send()
 			return nil, err
 		}
+		childSpan.Finish()
 	}
 	return &desc.MultiCreateTaskV1Response{}, nil
 }
