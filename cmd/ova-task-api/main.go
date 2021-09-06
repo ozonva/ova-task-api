@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"net"
@@ -50,8 +51,18 @@ func main() {
 	}(db)
 
 	repo := repopkg.NewRepo(db)
+
+	go runMetrics()
 	go runHttpGateway(config.Grpc.Port, config.Http.Port)
 	if err := runGrpc(config.Grpc.Port, repo); err != nil {
+		log.Fatal().Err(err).Send()
+	}
+}
+
+func runMetrics() {
+	http.Handle("/metrics", promhttp.Handler())
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
 }

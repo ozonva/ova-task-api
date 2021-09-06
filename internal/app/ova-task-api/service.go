@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"ozonva/ova-task-api/internal/metrics"
 	repopkg "ozonva/ova-task-api/internal/repo"
 	"ozonva/ova-task-api/internal/utils"
 	desc "ozonva/ova-task-api/pkg/api/ova-task-api"
@@ -57,6 +58,8 @@ func (o OvaTaskAPI) CreateTaskV1(ctx context.Context, in *desc.CreateTaskV1Reque
 	if err != nil {
 		return nil, err
 	}
+
+	metrics.Inc(metrics.CreateTaskCounter)
 	return &desc.CreateTaskV1Response{}, nil
 }
 
@@ -100,6 +103,8 @@ func (o OvaTaskAPI) RemoveTasksV1(ctx context.Context, in *desc.RemoveTaskV1Requ
 	if err != nil {
 		return nil, err
 	}
+
+	metrics.Inc(metrics.RemoveTaskCounter)
 	return &emptypb.Empty{}, nil
 }
 
@@ -140,5 +145,7 @@ func (o OvaTaskAPI) UpdateTaskV1(ctx context.Context, in *desc.UpdateTaskV1Reque
 	if err != nil {
 		return nil, err
 	}
+
+	metrics.Inc(metrics.UpdateTaskCounter)
 	return &desc.UpdateTaskV1Response{}, nil
 }
