@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/rs/zerolog/log"
+	"ozonva/ova-task-api/internal/kafka"
 	. "ozonva/ova-task-api/pkg/entities/tasks"
 	"time"
 )
@@ -53,6 +54,13 @@ func (repo *repo) RemoveTask(ctx context.Context, taskId uint64) error {
 		return err
 	}
 	logExecResult(result)
+
+	err = kafka.SendMessageWithContext(ctx, "remove_task", taskId)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+
 	return nil
 }
 
@@ -72,6 +80,12 @@ func (repo *repo) AddTasks(ctx context.Context, tasks []Task) error {
 		return err
 	}
 	logExecResult(result)
+
+	err = kafka.SendMessageWithContext(ctx, "add_tasks", tasks)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
 	return nil
 }
 
@@ -154,6 +168,11 @@ func (repo *repo) UpdateTask(ctx context.Context, task Task) error {
 		return err
 	}
 	logExecResult(result)
+	err = kafka.SendMessageWithContext(ctx, "update_task", task)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
 	return nil
 }
 

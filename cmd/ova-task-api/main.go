@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"ozonva/ova-task-api/internal/app/ova-task-api"
+	"ozonva/ova-task-api/internal/kafka"
 	repopkg "ozonva/ova-task-api/internal/repo"
 	"ozonva/ova-task-api/internal/utils"
 	apiServer "ozonva/ova-task-api/pkg/api/ova-task-api"
@@ -40,7 +41,7 @@ func main() {
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-			log.Fatal().Msg("failed to close db")
+			log.Error().Msg("failed to close db")
 		}
 	}(db)
 
@@ -67,7 +68,7 @@ func runHttpGateway(grpcPort int, httpPort int) {
 
 	err = http.ListenAndServe(":"+strconv.Itoa(httpPort), mux)
 	if err != nil {
-		panic(err)
+		log.Fatal().Err(err).Send()
 	}
 }
 
@@ -77,7 +78,7 @@ func runGrpc(grpcPort int, repo repopkg.Repo) error {
 		log.Fatal().Err(err).Msgf("failed to listen")
 	}
 	log.Info().Msg("Server is listening...")
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(UpgradeContext()))
 	apiServer.RegisterOvaTaskApiServer(server, api.NewOvaTaskApi(repo))
 
 	if err := server.Serve(listener); err != nil {
@@ -88,4 +89,10 @@ func runGrpc(grpcPort int, repo repopkg.Repo) error {
 
 func configUpdateHandle(configVersion string) {
 	fmt.Printf("Config version: %v\r\n", configVersion)
+}
+
+func UpgradeContext() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		return handler(kafka.RegisterIn(ctx), req)
+	}
 }

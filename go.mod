@@ -6,6 +6,7 @@ require github.com/stretchr/testify v1.7.0
 
 require (
 	github.com/Masterminds/squirrel v1.5.0
+	github.com/Shopify/sarama v1.29.1
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/golang/mock v1.6.0
