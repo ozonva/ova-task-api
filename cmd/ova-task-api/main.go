@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
 	"ozonva/ova-task-api/internal/app/ova-task-api"
+	"ozonva/ova-task-api/internal/kafka"
 	repopkg "ozonva/ova-task-api/internal/repo"
+	"ozonva/ova-task-api/internal/tracer"
 	"ozonva/ova-task-api/internal/utils"
 	apiServer "ozonva/ova-task-api/pkg/api/ova-task-api"
 	"strconv"
@@ -25,6 +28,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	tracerCloser := tracer.InitTracer("ova-task-api")
+	defer tracerCloser.Close()
 
 	dbConnectionString := fmt.Sprintf(
 		"port=%v user=%v password=%v dbname=%v sslmode=disable",
@@ -40,13 +46,23 @@ func main() {
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-			log.Fatal().Msg("failed to close db")
+			log.Error().Msg("failed to close db")
 		}
 	}(db)
 
 	repo := repopkg.NewRepo(db)
+
+	go runMetrics()
 	go runHttpGateway(config.Grpc.Port, config.Http.Port)
 	if err := runGrpc(config.Grpc.Port, repo); err != nil {
+		log.Fatal().Err(err).Send()
+	}
+}
+
+func runMetrics() {
+	http.Handle("/metrics", promhttp.Handler())
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
 }
@@ -67,7 +83,7 @@ func runHttpGateway(grpcPort int, httpPort int) {
 
 	err = http.ListenAndServe(":"+strconv.Itoa(httpPort), mux)
 	if err != nil {
-		panic(err)
+		log.Fatal().Err(err).Send()
 	}
 }
 
@@ -77,7 +93,7 @@ func runGrpc(grpcPort int, repo repopkg.Repo) error {
 		log.Fatal().Err(err).Msgf("failed to listen")
 	}
 	log.Info().Msg("Server is listening...")
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(UpgradeContext()))
 	apiServer.RegisterOvaTaskApiServer(server, api.NewOvaTaskApi(repo))
 
 	if err := server.Serve(listener); err != nil {
@@ -88,4 +104,10 @@ func runGrpc(grpcPort int, repo repopkg.Repo) error {
 
 func configUpdateHandle(configVersion string) {
 	fmt.Printf("Config version: %v\r\n", configVersion)
+}
+
+func UpgradeContext() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		return handler(kafka.RegisterIn(ctx), req)
+	}
 }

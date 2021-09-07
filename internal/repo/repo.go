@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/rs/zerolog/log"
+	"ozonva/ova-task-api/internal/kafka"
 	. "ozonva/ova-task-api/pkg/entities/tasks"
 	"time"
 )
@@ -14,6 +15,7 @@ type Repo interface {
 	ListTasks(ctx context.Context, limit, offset uint64) ([]Task, error)
 	DescribeTask(ctx context.Context, taskId uint64) (*Task, error)
 	RemoveTask(ctx context.Context, taskId uint64) error
+	UpdateTask(ctx context.Context, task Task) error
 }
 
 // todo move to utils
@@ -52,6 +54,13 @@ func (repo *repo) RemoveTask(ctx context.Context, taskId uint64) error {
 		return err
 	}
 	logExecResult(result)
+
+	err = kafka.SendMessageWithContext(ctx, "remove_task", taskId)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+
 	return nil
 }
 
@@ -71,6 +80,12 @@ func (repo *repo) AddTasks(ctx context.Context, tasks []Task) error {
 		return err
 	}
 	logExecResult(result)
+
+	err = kafka.SendMessageWithContext(ctx, "add_tasks", tasks)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
 	return nil
 }
 
@@ -133,6 +148,32 @@ func (repo *repo) DescribeTask(ctx context.Context, taskId uint64) (*Task, error
 		return nil, err
 	}
 	return task, nil
+}
+
+func (repo *repo) UpdateTask(ctx context.Context, task Task) error {
+	query := queryBuilder().
+		Update("tasks").
+		Set("userid", task.UserId).
+		Set("description", task.Description).
+		Where(sq.Eq{"id": task.TaskId})
+
+	err := logQuery(query)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+	result, err := query.RunWith(repo.db).ExecContext(ctx)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+	logExecResult(result)
+	err = kafka.SendMessageWithContext(ctx, "update_task", task)
+	if err != nil {
+		log.Error().Err(err).Send()
+		return err
+	}
+	return nil
 }
 
 func logExecResult(result sql.Result) {

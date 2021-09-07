@@ -8,9 +8,26 @@ import "google/protobuf/empty.proto";
 
 option go_package = "ozonva/ova-task-api/pkg/ova-task-api;ova_task_api";
 
-message CreateTaskV1Request {
+message TaskTemplateV1 {
     uint64 user_id = 1;
     string description = 2;
+}
+
+message CreateTaskV1Request {
+    TaskTemplateV1 task_template = 1;
+}
+
+message MultiCreateTaskV1Request {
+    repeated TaskTemplateV1 task_template = 1;
+}
+
+message UpdateTaskV1Request {
+    uint64 user_id = 1;
+    uint64 task_id = 2;
+    string description = 3;
+}
+
+message UpdateTaskV1Response {
 }
 
 message TaskV1 {
@@ -21,6 +38,9 @@ message TaskV1 {
 }
 
 message CreateTaskV1Response {
+}
+
+message MultiCreateTaskV1Response {
 }
 
 message DescribeTaskV1Request {
@@ -52,6 +72,20 @@ service OvaTaskApi {
     rpc CreateTaskV1(CreateTaskV1Request) returns (CreateTaskV1Response) {
         option (google.api.http) = {
             post: "/v1/tasks/create"
+            body: "*"
+        };
+    }
+
+    rpc MultiCreateTaskV1(MultiCreateTaskV1Request) returns (MultiCreateTaskV1Response) {
+        option (google.api.http) = {
+            post: "/v1/tasks/multicreate"
+            body: "*"
+        };
+    }
+
+    rpc UpdateTaskV1(UpdateTaskV1Request) returns (UpdateTaskV1Response) {
+        option (google.api.http) = {
+            post: "/v1/tasks/update"
             body: "*"
         };
     }

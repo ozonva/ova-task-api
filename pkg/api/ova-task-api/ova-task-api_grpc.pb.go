@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OvaTaskApiClient interface {
 	CreateTaskV1(ctx context.Context, in *CreateTaskV1Request, opts ...grpc.CallOption) (*CreateTaskV1Response, error)
+	MultiCreateTaskV1(ctx context.Context, in *MultiCreateTaskV1Request, opts ...grpc.CallOption) (*MultiCreateTaskV1Response, error)
+	UpdateTaskV1(ctx context.Context, in *UpdateTaskV1Request, opts ...grpc.CallOption) (*UpdateTaskV1Response, error)
 	DescribeTaskV1(ctx context.Context, in *DescribeTaskV1Request, opts ...grpc.CallOption) (*DescribeTaskV1Response, error)
 	ListTasksV1(ctx context.Context, in *ListTasksV1Request, opts ...grpc.CallOption) (*ListTasksV1Response, error)
 	RemoveTasksV1(ctx context.Context, in *RemoveTaskV1Request, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -36,6 +38,24 @@ func NewOvaTaskApiClient(cc grpc.ClientConnInterface) OvaTaskApiClient {
 func (c *ovaTaskApiClient) CreateTaskV1(ctx context.Context, in *CreateTaskV1Request, opts ...grpc.CallOption) (*CreateTaskV1Response, error) {
 	out := new(CreateTaskV1Response)
 	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/CreateTaskV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ovaTaskApiClient) MultiCreateTaskV1(ctx context.Context, in *MultiCreateTaskV1Request, opts ...grpc.CallOption) (*MultiCreateTaskV1Response, error) {
+	out := new(MultiCreateTaskV1Response)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/MultiCreateTaskV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ovaTaskApiClient) UpdateTaskV1(ctx context.Context, in *UpdateTaskV1Request, opts ...grpc.CallOption) (*UpdateTaskV1Response, error) {
+	out := new(UpdateTaskV1Response)
+	err := c.cc.Invoke(ctx, "/ova.task.api.OvaTaskApi/UpdateTaskV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +94,8 @@ func (c *ovaTaskApiClient) RemoveTasksV1(ctx context.Context, in *RemoveTaskV1Re
 // for forward compatibility
 type OvaTaskApiServer interface {
 	CreateTaskV1(context.Context, *CreateTaskV1Request) (*CreateTaskV1Response, error)
+	MultiCreateTaskV1(context.Context, *MultiCreateTaskV1Request) (*MultiCreateTaskV1Response, error)
+	UpdateTaskV1(context.Context, *UpdateTaskV1Request) (*UpdateTaskV1Response, error)
 	DescribeTaskV1(context.Context, *DescribeTaskV1Request) (*DescribeTaskV1Response, error)
 	ListTasksV1(context.Context, *ListTasksV1Request) (*ListTasksV1Response, error)
 	RemoveTasksV1(context.Context, *RemoveTaskV1Request) (*emptypb.Empty, error)
@@ -86,6 +108,12 @@ type UnimplementedOvaTaskApiServer struct {
 
 func (UnimplementedOvaTaskApiServer) CreateTaskV1(context.Context, *CreateTaskV1Request) (*CreateTaskV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTaskV1 not implemented")
+}
+func (UnimplementedOvaTaskApiServer) MultiCreateTaskV1(context.Context, *MultiCreateTaskV1Request) (*MultiCreateTaskV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateTaskV1 not implemented")
+}
+func (UnimplementedOvaTaskApiServer) UpdateTaskV1(context.Context, *UpdateTaskV1Request) (*UpdateTaskV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTaskV1 not implemented")
 }
 func (UnimplementedOvaTaskApiServer) DescribeTaskV1(context.Context, *DescribeTaskV1Request) (*DescribeTaskV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeTaskV1 not implemented")
@@ -123,6 +151,42 @@ func _OvaTaskApi_CreateTaskV1_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OvaTaskApiServer).CreateTaskV1(ctx, req.(*CreateTaskV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OvaTaskApi_MultiCreateTaskV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiCreateTaskV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OvaTaskApiServer).MultiCreateTaskV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ova.task.api.OvaTaskApi/MultiCreateTaskV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OvaTaskApiServer).MultiCreateTaskV1(ctx, req.(*MultiCreateTaskV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OvaTaskApi_UpdateTaskV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTaskV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OvaTaskApiServer).UpdateTaskV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ova.task.api.OvaTaskApi/UpdateTaskV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OvaTaskApiServer).UpdateTaskV1(ctx, req.(*UpdateTaskV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -191,6 +255,14 @@ var OvaTaskApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTaskV1",
 			Handler:    _OvaTaskApi_CreateTaskV1_Handler,
+		},
+		{
+			MethodName: "MultiCreateTaskV1",
+			Handler:    _OvaTaskApi_MultiCreateTaskV1_Handler,
+		},
+		{
+			MethodName: "UpdateTaskV1",
+			Handler:    _OvaTaskApi_UpdateTaskV1_Handler,
 		},
 		{
 			MethodName: "DescribeTaskV1",

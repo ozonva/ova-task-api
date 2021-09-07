@@ -62,8 +62,10 @@ var _ = Describe("Service", func() {
 	Context("when add task", func() {
 		It("task added", func() {
 			_, err := service.CreateTaskV1(nil, &desc.CreateTaskV1Request{
-				UserId:      1,
-				Description: "task description",
+				TaskTemplate: &desc.TaskTemplateV1{
+					UserId:      1,
+					Description: "task description",
+				},
 			})
 			Expect(err).Should(BeNil())
 			Expect(len(db)).Should(BeEquivalentTo(1))
@@ -76,12 +78,16 @@ var _ = Describe("Service", func() {
 	Context("when remove task", func() {
 		It("task removed", func() {
 			service.CreateTaskV1(nil, &desc.CreateTaskV1Request{
-				UserId:      1,
-				Description: "task description1",
+				TaskTemplate: &desc.TaskTemplateV1{
+					UserId:      1,
+					Description: "task description",
+				},
 			})
 			service.CreateTaskV1(nil, &desc.CreateTaskV1Request{
-				UserId:      1,
-				Description: "task description2",
+				TaskTemplate: &desc.TaskTemplateV1{
+					UserId:      1,
+					Description: "task description2",
+				},
 			})
 			service.RemoveTasksV1(nil, &desc.RemoveTaskV1Request{TaskId: 1})
 			Expect(len(db)).Should(BeEquivalentTo(1))
@@ -98,9 +104,10 @@ var _ = Describe("Service", func() {
 			autoIncrement = 0
 			for i := 0; i < 10; i++ {
 				service.CreateTaskV1(nil, &desc.CreateTaskV1Request{
-					UserId:      1,
-					Description: "task description" + strconv.Itoa(i),
-				})
+					TaskTemplate: &desc.TaskTemplateV1{
+						UserId:      1,
+						Description: "task description" + strconv.Itoa(i),
+					}})
 			}
 		})
 		It("all tasks can be listed", func() {
@@ -141,8 +148,10 @@ var _ = Describe("Service", func() {
 			autoIncrement = 0
 			for i := 0; i < 10; i++ {
 				service.CreateTaskV1(nil, &desc.CreateTaskV1Request{
-					UserId:      1,
-					Description: "task description" + strconv.Itoa(i),
+					TaskTemplate: &desc.TaskTemplateV1{
+						UserId:      1,
+						Description: "task description" + strconv.Itoa(i),
+					},
 				})
 			}
 		})
