@@ -36,3 +36,7 @@ var (
 func Inc(counterType CounterType) {
 	counters[counterType].Inc()
 }
+
+func Add(counterType CounterType, count float64) {
+	counters[counterType].Add(count)
+}

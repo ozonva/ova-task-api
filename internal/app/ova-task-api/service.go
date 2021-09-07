@@ -133,6 +133,8 @@ func (o OvaTaskAPI) MultiCreateTaskV1(ctx context.Context, in *desc.MultiCreateT
 		}
 		childSpan.Finish()
 	}
+
+	metrics.Add(metrics.CreateTaskCounter, float64(len(tasksToAdd)))
 	return &desc.MultiCreateTaskV1Response{}, nil
 }
 
